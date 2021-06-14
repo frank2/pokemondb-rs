@@ -1,0 +1,20 @@
+[package]
+name = "pokemondb-rs"
+version = "0.1.0"
+authors = ["frank2@dc949.org"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "pokemondb"
+path = "src/lib.rs"
+
+[[bin]]
+name = "pokemondb-rs"
+path = "src/bin.rs"
+
+[dependencies]
+reqwest = { version="0.11.3", features=["blocking"] }
+regex = "1.5.4"
+pokemon = { path="../pokemon-rs" }
