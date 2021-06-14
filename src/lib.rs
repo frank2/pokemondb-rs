@@ -18,8 +18,6 @@ impl PokemonData {
         if body.is_err() { return Err("no Pokemon data to parse"); }
 
         let pkmn_data = body.unwrap();
-
-        println!("[+] Got {} data.", name);
         
         let name_regex = Regex::new("<h1>([A-Za-z\\-' .é]+)</h1>").unwrap();
         let type_regex = Regex::new("<th>Type</th>\n<td>\n<a class=\"type-icon type-[a-z]+\" href=\"/type/(?P<primary>[a-z]+)\">[A-Za-z]+</a>(?: <a class=\"type-icon type-[a-z]+\" href=\"/type/(?P<secondary>[a-z]+)\">[A-Za-z]+</a>)?").unwrap();
