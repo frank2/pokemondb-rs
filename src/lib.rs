@@ -1,5 +1,5 @@
 use pokemon::types::{PokemonType, TypeData};
-use pokemon::Stats;
+use pokemon::{PokemonGame, Stats};
 
 use regex::Regex;
 
@@ -19,7 +19,7 @@ impl PokemonData {
 
         let pkmn_data = body.unwrap();
         
-        let name_regex = Regex::new("<h1>([A-Za-z\\-' .é]+)</h1>").unwrap();
+        let name_regex = Regex::new("<h1>([A-Za-z0-9\\-' .\\(\\)é♀♂:]+)</h1>").unwrap();
         let type_regex = Regex::new("<th>Type</th>\n<td>\n<a class=\"type-icon type-[a-z]+\" href=\"/type/(?P<primary>[a-z]+)\">[A-Za-z]+</a>(?: <a class=\"type-icon type-[a-z]+\" href=\"/type/(?P<secondary>[a-z]+)\">[A-Za-z]+</a>)?").unwrap();
         let hp_regex = Regex::new("<th>HP</th>\n<td class=\"cell-num\">([0-9]+)</td>").unwrap();
         let attack_regex = Regex::new("<th>Attack</th>\n<td class=\"cell-num\">([0-9]+)</td>").unwrap();
@@ -107,44 +107,24 @@ impl PokemonData {
     }
 }
 
-#[derive(Clone, Copy, Hash, Eq, PartialEq, Debug)]
-pub enum PokemonGame {
-    RedBlueYellow,
-    GoldSilverCrystal,
-    RubySapphireEmerald,
-    FireRedLeafGreen,
-    DiamondPearl,
-    Platinum,
-    HeartGoldSoulSilver,
-    BlackWhite,
-    BlackWhite2,
-    XY,
-    OmegaRubyAlphaSapphire,
-    SunMoon,
-    UltraSunUltraMoon,
-    LetsGoPikachuEevee,
-    SwordShield,
-    National,
-}
-
-pub fn get_pokedex(game: PokemonGame) -> Result<Vec<String>, &'static str> {
+pub fn get_pokedex(game: Option<PokemonGame>) -> Result<Vec<String>, &'static str> {
     let dex_url_chunk = match game {
-        PokemonGame::RedBlueYellow => "game/red-blue-yellow",
-        PokemonGame::GoldSilverCrystal => "game/gold-silver-crystal",
-        PokemonGame::RubySapphireEmerald => "game/ruby-sapphire-emerald",
-        PokemonGame::FireRedLeafGreen => "game/firered-leafgreen",
-        PokemonGame::DiamondPearl => "game/diamond-pearl",
-        PokemonGame::Platinum => "game/platinum",
-        PokemonGame::HeartGoldSoulSilver => "game/heartgold-soulsilver",
-        PokemonGame::BlackWhite => "game/black-white",
-        PokemonGame::BlackWhite2 => "game/black-white-2",
-        PokemonGame::XY => "game/x-y",
-        PokemonGame::OmegaRubyAlphaSapphire => "game/omega-ruby-alpha-sapphire",
-        PokemonGame::SunMoon => "game/sun-moon",
-        PokemonGame::UltraSunUltraMoon => "game/ultra-sun-ultra-moon",
-        PokemonGame::LetsGoPikachuEevee => "game/lets-go-pikachu-eevee",
-        PokemonGame::SwordShield => "game/sword-shield",
-        PokemonGame::National => "national",
+        Some(PokemonGame::RedBlueYellow) => "game/red-blue-yellow",
+        Some(PokemonGame::GoldSilverCrystal) => "game/gold-silver-crystal",
+        Some(PokemonGame::RubySapphireEmerald) => "game/ruby-sapphire-emerald",
+        Some(PokemonGame::FireRedLeafGreen) => "game/firered-leafgreen",
+        Some(PokemonGame::DiamondPearl) => "game/diamond-pearl",
+        Some(PokemonGame::Platinum) => "game/platinum",
+        Some(PokemonGame::HeartGoldSoulSilver) => "game/heartgold-soulsilver",
+        Some(PokemonGame::BlackWhite) => "game/black-white",
+        Some(PokemonGame::BlackWhite2) => "game/black-white-2",
+        Some(PokemonGame::XY) => "game/x-y",
+        Some(PokemonGame::OmegaRubyAlphaSapphire) => "game/omega-ruby-alpha-sapphire",
+        Some(PokemonGame::SunMoon) => "game/sun-moon",
+        Some(PokemonGame::UltraSunUltraMoon) => "game/ultra-sun-ultra-moon",
+        Some(PokemonGame::LetsGoPikachuEevee) => "game/lets-go-pikachu-eevee",
+        Some(PokemonGame::SwordShield) => "game/sword-shield",
+        None => "national",
     };
     let request = reqwest::blocking::get(format!("https://pokemondb.net/pokedex/{}", dex_url_chunk));
     if request.is_err() { return Err("couldn't get Pokedex data"); }
@@ -153,7 +133,7 @@ pub fn get_pokedex(game: PokemonGame) -> Result<Vec<String>, &'static str> {
     if body.is_err() { return Err("no Pokedex data to parse"); }
 
     let dex_data = body.unwrap();
-    let mon_regex = Regex::new("<span class=\"infocard-lg-img\"><a href=\"/pokedex/([a-z]+)\">").unwrap();
+    let mon_regex = Regex::new("<span class=\"infocard-lg-img\"><a href=\"/pokedex/([a-z0-9\\-]+)\">").unwrap();
     let mut result = Vec::<String>::new();
 
     for capture in mon_regex.captures_iter(dex_data.as_str()) {
